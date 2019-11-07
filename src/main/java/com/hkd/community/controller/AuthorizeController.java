@@ -5,7 +5,6 @@ import com.hkd.community.dto.GitUser;
 import com.hkd.community.mapper.UserMapper;
 import com.hkd.community.model.User;
 import com.hkd.community.provider.GitProvider;
-import com.sun.deploy.net.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -47,7 +46,7 @@ public class AuthorizeController {
 
         String accessToken = gitProvider.getAccessToken(accessTokenDTO);
         GitUser gitUser = gitProvider.getUser(accessToken);
-        if(gitUser!=null){
+        if(gitUser!=null &&  gitUser.getId() != null){
             User user = new User();
             user.setName(gitUser.getName());
             String token = UUID.randomUUID().toString();
@@ -55,6 +54,7 @@ public class AuthorizeController {
             user.setAccountId(String.valueOf(gitUser.getId()));
             user.setGmtCreate(System.currentTimeMillis());
             user.setGmtModified(user.getGmtCreate());
+            user.setAvatarUrl(gitUser.getAvatarUrl());
             userMapper.insert(user);
             response.addCookie(new Cookie("token" ,token));
             return "redirect:/";
